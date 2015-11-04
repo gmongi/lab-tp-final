@@ -66,6 +66,7 @@ public class Monitor extends JFrame {
 	private JLabel lblAsignarDesasginar;
 	private JLabel lblRenombrar;
 
+	JButton btnFiltrar;
 	/**
 	 * Launch the application.
 	 */
@@ -291,6 +292,98 @@ public class Monitor extends JFrame {
 
 	}
 
+	private void filtrarTabla(){
+		clearTablaNotificaciones();
+
+		ArrayList<Notificacion> auxList = new ArrayList<Notificacion>(notificaciones);
+		Notificacion auxNot = null;
+		int correccion = 0;
+		int i = 0;
+		Boolean borrado = false;
+		for (Notificacion n : notificaciones) {
+			auxNot = notificaciones.get(i);
+			String nombre = auxNot.getNinio();
+			Boolean resultado = auxNot.getNinio().equals(comboNinio.getSelectedItem().toString());
+
+			if (!borrado && !comboNinio.getSelectedItem().toString().equals("")
+					&& !auxNot.getNinio().equals(comboNinio.getSelectedItem().toString())) {
+				auxList.remove(i - correccion);
+				borrado = true;
+			}
+			if (!borrado && !comboContenido.getSelectedItem().toString().equals("")
+					&& !auxNot.getContenido().equals(comboContenido.getSelectedItem().toString())) {
+				auxList.remove(i - correccion);
+				borrado = true;
+			}
+			if (!borrado && !comboCategoria.getSelectedItem().toString().equals("")
+					&& !auxNot.getCategoria().equals(comboCategoria.getSelectedItem().toString())) {
+				auxList.remove(i - correccion);
+				borrado = true;
+			}
+			if (!borrado && !comboContexto.getSelectedItem().toString().equals("")
+					&& !comboContexto.getSelectedItem().toString().equals("<Predeterminado>")
+					&& !auxNot.getContexto().equals(comboContexto.getSelectedItem().toString())) {
+				auxList.remove(i - correccion);
+				borrado = true;
+			}
+
+			// FECHAS
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+			if (!borrado && !txtDesde.getText().equals("")) {
+				Date desde = null;
+				try {
+					desde = format.parse(txtDesde.getText());
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				if (desde.after(auxNot.getFecha_envio())) {
+					auxList.remove(i - correccion);
+					borrado = true;
+				}
+			}
+
+			if (!borrado && !txtHasta.getText().equals("")) {
+				Date hasta = null;
+				try {
+					hasta = format.parse(txtHasta.getText());
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				Calendar c = Calendar.getInstance();
+				c.setTime(hasta);
+				c.add(Calendar.DATE, 1); // number of days to add
+				hasta = c.getTime();
+
+				if (hasta.before(auxNot.getFecha_envio())) {
+					auxList.remove(i - correccion);
+					borrado = true;
+				}
+			}
+
+			// IMPLEMENTAR ETIQUETADOS
+
+			if (!borrado && !comboEtiqueta.getSelectedItem().toString().equals("")
+					&& !auxNot.getEtiquetas().contains(comboEtiqueta.getSelectedItem())) {
+				auxList.remove(i - correccion);
+				borrado = true;
+			}
+
+			// set for next loop
+			if (borrado) {
+				correccion++;
+			}
+			;
+			borrado = false;
+			i++;
+		}
+
+		cargarTablaNotificaciones(auxList);
+	}
 	private class CreadorEtiqueta implements ActionListener {
 
 		@Override
@@ -302,6 +395,8 @@ public class Monitor extends JFrame {
 
 				actualizarCombosEtiqueta();
 			}
+			actualizarNotificaciones();
+			filtrarTabla();
 		}
 
 	}
@@ -336,6 +431,8 @@ public class Monitor extends JFrame {
 
 				actualizarCombosEtiqueta();
 			}
+			actualizarNotificaciones();
+			filtrarTabla();
 		}
 
 	}
@@ -351,6 +448,8 @@ public class Monitor extends JFrame {
 
 				actualizarCombosEtiqueta();
 			}
+			actualizarNotificaciones();
+			filtrarTabla();
 		}
 
 	}
@@ -370,6 +469,8 @@ public class Monitor extends JFrame {
 
 				actualizarNotificaciones();
 			}
+			actualizarNotificaciones();
+			filtrarTabla();
 		}
 
 	}
@@ -466,7 +567,7 @@ public class Monitor extends JFrame {
 		comboEtiqueta.setBounds(263, 52, 106, 20);
 		panelFiltros.add(comboEtiqueta);
 
-		JButton btnFiltrar = new JButton("Filtrar");
+		btnFiltrar = new JButton("Filtrar");
 		btnFiltrar.setBounds(283, 165, 86, 23);
 		btnFiltrar.addActionListener(new FiltradorTabla());
 		panelFiltros.add(btnFiltrar);
@@ -545,7 +646,6 @@ public class Monitor extends JFrame {
 		JButton btnRenombrar = new JButton("Renombrar");
 		btnRenombrar.setBounds(278, 114, 109, 23);
 		btnRenombrar.addActionListener(new RenombradorEtiqueta());
-		btnRenombrar.addMouseListener(new RefrescadorTabla());
 		panelEtiquetas.add(btnRenombrar);
 		
 		lblCrearEtiqueta = new JLabel("Crear:");
