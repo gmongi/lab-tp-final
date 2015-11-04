@@ -169,11 +169,14 @@ public class Conector {
 			
 			// agregar etiquetas
 			ArrayList<String> etiquetas = new ArrayList<String>();
-			rs2 = st2.executeQuery("SELECT * FROM notificacion_etiqueta, etiquetas WHERE notificacion_id = "+n.getId());
+			rs2 = st2.executeQuery("SELECT * FROM notificacion_etiqueta, etiquetas WHERE notificacion_id = "+n.getId()+" AND notificacion_etiqueta.etiqueta_id = etiquetas.id");
 			while (rs2.next()){
 				etiquetas.add(rs2.getString("texto"));
 			}
 			
+			if (etiquetas.size() > 0){
+				int i = 0;
+			}
 			n.setEtiquetas(etiquetas);
 			
 		} catch (SQLException | ParseException e) {
@@ -210,7 +213,8 @@ public class Conector {
 		StringBuilder sql = new StringBuilder();
 		sql.append(
 				"SELECT notificaciones.id, fecha_envio, fecha_recepcion, categoria_id, contextos.texto as contexto, contenidos.texto as contenido, ninios.nombre as ninio "
-						+ "FROM notificaciones, categorias, contenidos, contextos, ninios " + "WHERE ");
+						+ "FROM notificaciones, categorias, contenidos, contextos, ninios " 
+						+ "WHERE ");
 		if (ninio.equals("") && contenido.equals("") && contexto.equals("") && categoria.equals("") && etiqueta.equals("")) {
 			return getNotificaciones();
 		}

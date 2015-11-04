@@ -1,6 +1,8 @@
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
@@ -36,6 +38,7 @@ import com.fasterxml.jackson.databind.ser.std.DateSerializer;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.JLabel;
 
 @SuppressWarnings("serial")
 public class Monitor extends JFrame {
@@ -58,6 +61,10 @@ public class Monitor extends JFrame {
 
 	private List<Notificacion> notificaciones;
 	private Conector conector = new Conector();
+	private JLabel lblCrearEtiqueta;
+	private JLabel lblEliminar;
+	private JLabel lblAsignarDesasginar;
+	private JLabel lblRenombrar;
 
 	/**
 	 * Launch the application.
@@ -375,6 +382,39 @@ public class Monitor extends JFrame {
 		cargarTablaNotificaciones(notificaciones);
 	}
 
+	private class RefrescadorTabla implements MouseListener{
+
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			actualizarNotificaciones();
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
 	public Monitor() {
 		// cargar notificaciones de la BD
 		conector.connect();
@@ -394,71 +434,135 @@ public class Monitor extends JFrame {
 		panelFiltros.setBorder(new TitledBorder(null, "Filtros", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panelFiltros.setBounds(13, 12, 379, 199);
 		contentPane.add(panelFiltros);
+		panelFiltros.setLayout(null);
 
 		comboContenido = new JComboBox<String>();
+		comboContenido.setBounds(69, 21, 106, 20);
 		panelFiltros.add(comboContenido);
 
 		comboContexto = new JComboBox<String>();
+		comboContexto.setBounds(69, 52, 106, 20);
 		panelFiltros.add(comboContexto);
 
 		comboNinio = new JComboBox<String>();
+		comboNinio.setBounds(69, 83, 106, 20);
 		panelFiltros.add(comboNinio);
 
 		comboCategoria = new JComboBox<String>();
+		comboCategoria.setBounds(263, 21, 106, 20);
 		panelFiltros.add(comboCategoria);
 
 		txtDesde = new JTextField();
+		txtDesde.setBounds(10, 145, 86, 20);
 		panelFiltros.add(txtDesde);
 		txtDesde.setColumns(10);
 
 		txtHasta = new JTextField();
+		txtHasta.setBounds(125, 145, 86, 20);
 		panelFiltros.add(txtHasta);
 		txtHasta.setColumns(10);
 
 		comboEtiqueta = new JComboBox<String>();
+		comboEtiqueta.setBounds(263, 52, 106, 20);
 		panelFiltros.add(comboEtiqueta);
 
 		JButton btnFiltrar = new JButton("Filtrar");
+		btnFiltrar.setBounds(283, 165, 86, 23);
 		btnFiltrar.addActionListener(new FiltradorTabla());
 		panelFiltros.add(btnFiltrar);
+		
+		JLabel lblContenido = new JLabel("Contenido:");
+		lblContenido.setBounds(10, 24, 61, 14);
+		panelFiltros.add(lblContenido);
+		
+		JLabel lblContexto = new JLabel("Contexto:");
+		lblContexto.setBounds(10, 55, 61, 14);
+		panelFiltros.add(lblContexto);
+		
+		JLabel lblNi = new JLabel("Ni\u00F1@:");
+		lblNi.setBounds(10, 86, 46, 14);
+		panelFiltros.add(lblNi);
+		
+		JLabel lblEtiqueta = new JLabel("Etiqueta:");
+		lblEtiqueta.setBounds(207, 55, 46, 14);
+		panelFiltros.add(lblEtiqueta);
+		
+		JLabel lblNewLabel = new JLabel("Categoria:");
+		lblNewLabel.setBounds(202, 24, 51, 14);
+		panelFiltros.add(lblNewLabel);
+		
+		JLabel lblFechaDesde = new JLabel("Fecha Desde:");
+		lblFechaDesde.setBounds(10, 120, 86, 14);
+		panelFiltros.add(lblFechaDesde);
+		
+		JLabel lblFechaHasta = new JLabel("Fecha Hasta:");
+		lblFechaHasta.setBounds(129, 120, 82, 14);
+		panelFiltros.add(lblFechaHasta);
 
 		JPanel panelEtiquetas = new JPanel();
 		panelEtiquetas.setBorder(new TitledBorder(null, "Etiquetas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panelEtiquetas.setBounds(404, 12, 397, 199);
 		contentPane.add(panelEtiquetas);
+		panelEtiquetas.setLayout(null);
 
 		txtCrear = new JTextField();
+		txtCrear.setBounds(124, 22, 99, 20);
 		panelEtiquetas.add(txtCrear);
 		txtCrear.setColumns(10);
 
 		JButton btnCrear = new JButton("Crear");
+		btnCrear.setBounds(233, 21, 86, 23);
 		btnCrear.addActionListener(new CreadorEtiqueta());
 		panelEtiquetas.add(btnCrear);
 
 		comboEliminar = new JComboBox<String>();
+		comboEliminar.setBounds(124, 53, 99, 20);
 		panelEtiquetas.add(comboEliminar);
 
 		JButton btnEliminar = new JButton("Eliminar");
+		btnEliminar.setBounds(233, 52, 86, 23);
 		btnEliminar.addActionListener(new EliminadorEtiqueta());
 		panelEtiquetas.add(btnEliminar);
 
 		comboAsignar = new JComboBox<String>();
+		comboAsignar.setBounds(124, 84, 99, 20);
 		panelEtiquetas.add(comboAsignar);
 
 		JButton btnAsignar = new JButton("Asignar / Desasig.");
+		btnAsignar.setBounds(233, 86, 154, 23);
 		btnAsignar.addActionListener(new AsignadorEtiqueta());
 		panelEtiquetas.add(btnAsignar);
 
 		comboRenombrar = new JComboBox<String>();
+		comboRenombrar.setBounds(73, 115, 99, 20);
 		panelEtiquetas.add(comboRenombrar);
 
 		txtRenombrar = new JTextField();
+		txtRenombrar.setBounds(182, 115, 86, 20);
 		panelEtiquetas.add(txtRenombrar);
 		txtRenombrar.setColumns(10);
 
 		JButton btnRenombrar = new JButton("Renombrar");
+		btnRenombrar.setBounds(278, 114, 109, 23);
 		btnRenombrar.addActionListener(new RenombradorEtiqueta());
+		btnRenombrar.addMouseListener(new RefrescadorTabla());
 		panelEtiquetas.add(btnRenombrar);
+		
+		lblCrearEtiqueta = new JLabel("Crear:");
+		lblCrearEtiqueta.setBounds(10, 25, 46, 14);
+		panelEtiquetas.add(lblCrearEtiqueta);
+		
+		lblEliminar = new JLabel("Eliminar:");
+		lblEliminar.setBounds(10, 56, 46, 14);
+		panelEtiquetas.add(lblEliminar);
+		
+		lblAsignarDesasginar = new JLabel("Asignar / Desasginar:");
+		lblAsignarDesasginar.setBounds(4, 87, 110, 14);
+		panelEtiquetas.add(lblAsignarDesasginar);
+		
+		lblRenombrar = new JLabel("Renombrar:");
+		lblRenombrar.setBounds(10, 118, 69, 14);
+		panelEtiquetas.add(lblRenombrar);
 
 		JScrollPane panelNotificaciones = new JScrollPane();
 		panelNotificaciones.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
