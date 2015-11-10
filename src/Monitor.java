@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.swing.JFrame;
@@ -23,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -40,12 +42,19 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JLabel;
 
+import org.jdatepicker.impl.DateComponentFormatter;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
 @SuppressWarnings("serial")
 public class Monitor extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField txtDesde;
-	private JTextField txtHasta;
+
+	private JDatePickerImpl dateDesde;
+	JDatePickerImpl dateHasta;
+
 	private JTextField txtCrear;
 	private JTextField txtRenombrar;
 	private JTable table;
@@ -215,8 +224,8 @@ public class Monitor extends JFrame {
 			filtroContexto = comboContexto.getSelectedItem().toString();
 			filtroCategoria = comboCategoria.getSelectedItem().toString();
 			filtroEtiqueta = comboEtiqueta.getSelectedItem().toString();
-			filtroDesde = txtDesde.getText();
-			filtroHasta = txtHasta.getText();
+			filtroDesde = dateDesde.getJFormattedTextField().getText();
+			filtroHasta = dateHasta.getJFormattedTextField().getText();
 
 			// Obtener notificaciones filtradas
 			notificaciones = notificacionesFiltradas();
@@ -330,6 +339,28 @@ public class Monitor extends JFrame {
 		cargarTablaNotificaciones(notificaciones);
 	}
 
+	private class DateLabelFormatter extends AbstractFormatter {
+
+		private String datePattern = "yyyy-MM-dd";
+		private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
+		@Override
+		public Object stringToValue(String text) throws ParseException {
+			return dateFormatter.parseObject(text);
+		}
+
+		@Override
+		public String valueToString(Object value) throws ParseException {
+			if (value != null) {
+				Calendar cal = (Calendar) value;
+				return dateFormatter.format(cal.getTime());
+			}
+
+			return "";
+		}
+
+	}
+
 	public Monitor() {
 		// cargar notificaciones de la BD
 		notificaciones = notificacionesFiltradas();
@@ -365,15 +396,21 @@ public class Monitor extends JFrame {
 		comboCategoria.setBounds(263, 21, 106, 20);
 		panelFiltros.add(comboCategoria);
 
-		txtDesde = new JTextField();
-		txtDesde.setBounds(10, 145, 86, 20);
-		panelFiltros.add(txtDesde);
-		txtDesde.setColumns(10);
+		Properties p = new Properties();
+		p.put("text.today", "Hoy");
+		p.put("text.month", "Mes");
+		p.put("text.year", "Año");
+		UtilDateModel model = new UtilDateModel();
+		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+		dateDesde = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+		dateDesde.setBounds(10, 145, 145, 20);
+		panelFiltros.add(dateDesde);
 
-		txtHasta = new JTextField();
-		txtHasta.setBounds(125, 145, 86, 20);
-		panelFiltros.add(txtHasta);
-		txtHasta.setColumns(10);
+		UtilDateModel model2 = new UtilDateModel();
+		JDatePanelImpl datePanel2 = new JDatePanelImpl(model2, p);
+		dateHasta = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
+		dateHasta.setBounds(283, 133, 86, 20);
+		panelFiltros.add(dateHasta);
 
 		comboEtiqueta = new JComboBox<String>();
 		comboEtiqueta.setBounds(263, 52, 106, 20);
@@ -409,7 +446,7 @@ public class Monitor extends JFrame {
 		panelFiltros.add(lblFechaDesde);
 
 		JLabel lblFechaHasta = new JLabel("Fecha Hasta:");
-		lblFechaHasta.setBounds(129, 120, 82, 14);
+		lblFechaHasta.setBounds(287, 108, 82, 14);
 		panelFiltros.add(lblFechaHasta);
 
 		JPanel panelEtiquetas = new JPanel();

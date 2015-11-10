@@ -1,12 +1,2 @@
-/Conector.class
-/Monitor$1.class
 /Monitor$2.class
-/Monitor$AsignadorEtiqueta.class
-/Monitor$CreadorEtiqueta.class
-/Monitor$EliminadorEtiqueta.class
-/Monitor$FiltradorTabla.class
-/Monitor$InicializadorVentana.class
-/Monitor$RefrescadorTabla.class
-/Monitor$RenombradorEtiqueta.class
-/Monitor.class
-/Notificacion.class
+/Monitor$DateLabelFormatter.class
