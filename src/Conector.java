@@ -25,6 +25,10 @@ public class Conector {
 	String nuevaNotificacion = "INSERT INTO notificaciones(fecha_envio,fecha_recepcion,contenido_id,contexto_id,categoria_id,ninio_id) "
 			+ "VALUES (?, ?, ?, ?, ?, ?)";
 
+	String sqlNotificaciones = "SELECT notificaciones.id, fecha_envio, fecha_recepcion, categoria_id, contextos.texto as contexto, contenidos.texto as contenido, ninios.nombre as ninio, categorias.texto as categoria "
+			+ "FROM notificaciones, contenidos, contextos, ninios, categorias "
+			+ "WHERE contenido_id = contenidos.id AND contexto_id = contextos.id AND ninio_id = ninios.id AND categoria_id = categorias.id";
+
 	public void connect() {
 		try {
 			connect = DriverManager.getConnection("jdbc:sqlite:" + url);
@@ -144,7 +148,7 @@ public class Conector {
 		}
 		return ret;
 	}
-	
+
 	private Notificacion armarNotificacion(ResultSet rs) {
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Notificacion n = new Notificacion();
@@ -155,30 +159,23 @@ public class Conector {
 			n.setContenido(rs.getString("contenido"));
 			n.setContexto(rs.getString("contexto"));
 			n.setNinio(rs.getString("ninio"));
+			n.setCategoria(rs.getString("categoria"));
 
+			// agregar etiquetas
 			Statement st2 = connect.createStatement();
 			ResultSet rs2;
-			// agregar categoria
-			if (rs.getInt("categoria_id") != 0) {
-				rs2 = st2.executeQuery("SELECT texto FROM categorias WHERE id = " + rs.getInt("categoria_id"));
-				rs2.next();
-				n.setCategoria(rs2.getString("texto"));
-			} else {
-				n.setCategoria("<Predeterminado>");
-			}
-			
-			// agregar etiquetas
 			ArrayList<String> etiquetas = new ArrayList<String>();
-			rs2 = st2.executeQuery("SELECT * FROM notificacion_etiqueta, etiquetas WHERE notificacion_id = "+n.getId()+" AND notificacion_etiqueta.etiqueta_id = etiquetas.id");
-			while (rs2.next()){
+			rs2 = st2.executeQuery("SELECT * FROM notificacion_etiqueta, etiquetas WHERE notificacion_id = " + n.getId()
+					+ " AND notificacion_etiqueta.etiqueta_id = etiquetas.id");
+			while (rs2.next()) {
 				etiquetas.add(rs2.getString("texto"));
 			}
-			
-			if (etiquetas.size() > 0){
+
+			if (etiquetas.size() > 0) {
 				int i = 0;
 			}
 			n.setEtiquetas(etiquetas);
-			
+
 		} catch (SQLException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,12 +183,9 @@ public class Conector {
 		return n;
 	};
 
-	public List<Notificacion> getNotificaciones() {
+	private List<Notificacion> getNotificaciones() {
 		List<Notificacion> ret = new ArrayList<Notificacion>();
-		String sql = "SELECT notificaciones.id, fecha_envio, fecha_recepcion, categoria_id, contextos.texto as contexto, contenidos.texto as contenido, ninios.nombre as ninio "
-				+ "FROM notificaciones, contenidos, contextos, ninios "
-				+ "WHERE contenido_id = contenidos.id AND contexto_id = contextos.id AND ninio_id = ninios.id";
-
+		String sql = sqlNotificaciones;
 		Statement st;
 		ResultSet rs;
 		try {
@@ -204,38 +198,69 @@ public class Conector {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.print("Recuperadas " + ret.size() + " notificaciones");
 		return ret;
 	}
 
-	public List<Notificacion> getNotificacionesFiltradas(String ninio, String contenido, String contexto, String categoria,
-			String etiqueta) {
-		List<Notificacion> ret = new ArrayList<Notificacion>();
-		StringBuilder sql = new StringBuilder();
-		sql.append(
-				"SELECT notificaciones.id, fecha_envio, fecha_recepcion, categoria_id, contextos.texto as contexto, contenidos.texto as contenido, ninios.nombre as ninio "
-						+ "FROM notificaciones, categorias, contenidos, contextos, ninios " 
-						+ "WHERE ");
-		if (ninio.equals("") && contenido.equals("") && contexto.equals("") && categoria.equals("") && etiqueta.equals("")) {
+	public List<Notificacion> getNotificacionesFiltradas(String ninio, String contenido, String contexto, String categoria, String etiqueta,
+			String desde, String hasta) {
+
+		if (ninio.equals("") && contenido.equals("") && contexto.equals("") && categoria.equals("") && etiqueta.equals("")
+				&& desde.equals("") && hasta.equals("")) {
 			return getNotificaciones();
 		}
 		;
 
-		if (!ninio.equals("")) {
-			sql.append("");
-		}
-		if (!ninio.equals("")) {
+		String sqlNotificacionesEtiquetas = "SELECT notificaciones.id, fecha_envio, fecha_recepcion, contextos.texto as contexto, contenidos.texto as contenido, ninios.nombre as ninio, categorias.texto as categoria "
+				+ "FROM notificaciones, contenidos, contextos, ninios, categorias, etiquetas, notificacion_etiqueta AS n_e "
+				+ "WHERE contenido_id = contenidos.id AND contexto_id = contextos.id AND ninio_id = ninios.id AND categoria_id = categorias.id AND n_e.notificacion_id = notificaciones.id AND n_e.etiqueta_id = etiquetas.id ";
 
+		List<Notificacion> ret = new ArrayList<Notificacion>();
+		StringBuilder sql;
+
+		// Si se debe filtrar por etiqueta, usar el SQL que incluye la tabla de
+		// etiquetas
+		if (!etiqueta.equals("")) {
+			sql = new StringBuilder(sqlNotificacionesEtiquetas);
+			sql.append(" AND etiquetas.texto = '" + etiqueta + "'");
+		} else {
+			sql = new StringBuilder(sqlNotificaciones);
 		}
+
+		// Otros filtros
 		if (!ninio.equals("")) {
-
+			sql.append(" AND ninios.nombre = '" + ninio + "'");
 		}
-		if (!ninio.equals("")) {
-
+		if (!contenido.equals("")) {
+			sql.append(" AND contenidos.texto = '" + contenido + "'");
 		}
-		if (!ninio.equals("")) {
-
+		if (!contexto.equals("")) {
+			sql.append(" AND contextos.texto = '" + contexto + "'");
+		}
+		if (!categoria.equals("")) {
+			sql.append(" AND categorias.texto = '" + categoria + "'");
+		}
+		if (!desde.equals("")) {
+			sql.append(" AND  fecha_envio >= '" + desde + "'");
+		}
+		if (!hasta.equals("")) {
+			sql.append(" AND  fecha_envio <= '" + hasta + "'");
 		}
 
+		Statement st;
+		ResultSet rs;
+		try {
+			st = connect.createStatement();
+			rs = st.executeQuery(sql.toString());
+			while (rs.next()) {
+				ret.add(armarNotificacion(rs));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.print("Recuperadas " + ret.size() + " notificaciones");
 		return ret;
 	}
 
@@ -272,12 +297,12 @@ public class Conector {
 		try {
 			Statement st = connect.createStatement();
 			int id = getIdEtiqueta(string);
-			
+
 			// Eliminar Etiqueta
-			st.executeUpdate("DELETE FROM etiquetas WHERE id = "+id);
-			
+			st.executeUpdate("DELETE FROM etiquetas WHERE id = " + id);
+
 			// Elinimar Relaciones
-			st.executeUpdate("DELETE FROM notificacion_etiqueta WHERE etiqueta_id = "+id);
+			st.executeUpdate("DELETE FROM notificacion_etiqueta WHERE etiqueta_id = " + id);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -287,7 +312,7 @@ public class Conector {
 	public void renombrarEtiqueta(String original, String nuevo) {
 		try {
 			Statement st = connect.createStatement();
-			st.executeUpdate("UPDATE etiquetas SET texto = '"+nuevo+"' WHERE texto = '"+original+"'");
+			st.executeUpdate("UPDATE etiquetas SET texto = '" + nuevo + "' WHERE texto = '" + original + "'");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -297,15 +322,17 @@ public class Conector {
 	public void asignarEtiqueta(String string, int id_notificacion) {
 		try {
 			Statement st = connect.createStatement();
-			ResultSet rs = st.executeQuery("SELECT * FROM etiquetas WHERE texto = '"+string+"'");
+			ResultSet rs = st.executeQuery("SELECT * FROM etiquetas WHERE texto = '" + string + "'");
 			rs.next();
 			int id_etiqueta = rs.getInt("id");
-			
-			rs = st.executeQuery("SELECT * FROM notificacion_etiqueta WHERE notificacion_id = "+id_notificacion+" AND etiqueta_id = "+id_etiqueta);
-			if (rs.next()){
-				st.executeUpdate("DELETE FROM notificacion_etiqueta WHERE notificacion_id = "+id_notificacion+" AND etiqueta_id = "+id_etiqueta);
-			}else{
-				st.executeUpdate("INSERT INTO notificacion_etiqueta VALUES ("+id_notificacion+", "+id_etiqueta+")");
+
+			rs = st.executeQuery(
+					"SELECT * FROM notificacion_etiqueta WHERE notificacion_id = " + id_notificacion + " AND etiqueta_id = " + id_etiqueta);
+			if (rs.next()) {
+				st.executeUpdate("DELETE FROM notificacion_etiqueta WHERE notificacion_id = " + id_notificacion + " AND etiqueta_id = "
+						+ id_etiqueta);
+			} else {
+				st.executeUpdate("INSERT INTO notificacion_etiqueta VALUES (" + id_notificacion + ", " + id_etiqueta + ")");
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

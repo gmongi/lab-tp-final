@@ -66,7 +66,16 @@ public class Monitor extends JFrame {
 	private JLabel lblAsignarDesasginar;
 	private JLabel lblRenombrar;
 
+	private String filtroNinio = "";
+	private String filtroCategoria = "";
+	private String filtroContexto = "";
+	private String filtroContenido = "";
+	private String filtroEtiqueta = "";
+	private String filtroDesde = "";
+	private String filtroHasta = "";
+
 	JButton btnFiltrar;
+
 	/**
 	 * Launch the application.
 	 */
@@ -200,190 +209,23 @@ public class Monitor extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			clearTablaNotificaciones();
 
-			ArrayList<Notificacion> auxList = new ArrayList<Notificacion>(notificaciones);
-			Notificacion auxNot = null;
-			int correccion = 0;
-			int i = 0;
-			Boolean borrado = false;
-			for (Notificacion n : notificaciones) {
-				auxNot = notificaciones.get(i);
-				String nombre = auxNot.getNinio();
-				Boolean resultado = auxNot.getNinio().equals(comboNinio.getSelectedItem().toString());
+			// Cargar variables filtros para uso posterior
+			filtroNinio = comboNinio.getSelectedItem().toString();
+			filtroContenido = comboContenido.getSelectedItem().toString();
+			filtroContexto = comboContexto.getSelectedItem().toString();
+			filtroCategoria = comboCategoria.getSelectedItem().toString();
+			filtroEtiqueta = comboEtiqueta.getSelectedItem().toString();
+			filtroDesde = txtDesde.getText();
+			filtroHasta = txtHasta.getText();
 
-				if (!borrado && !comboNinio.getSelectedItem().toString().equals("")
-						&& !auxNot.getNinio().equals(comboNinio.getSelectedItem().toString())) {
-					auxList.remove(i - correccion);
-					borrado = true;
-				}
-				if (!borrado && !comboContenido.getSelectedItem().toString().equals("")
-						&& !auxNot.getContenido().equals(comboContenido.getSelectedItem().toString())) {
-					auxList.remove(i - correccion);
-					borrado = true;
-				}
-				if (!borrado && !comboCategoria.getSelectedItem().toString().equals("")
-						&& !auxNot.getCategoria().equals(comboCategoria.getSelectedItem().toString())) {
-					auxList.remove(i - correccion);
-					borrado = true;
-				}
-				if (!borrado && !comboContexto.getSelectedItem().toString().equals("")
-						&& !comboContexto.getSelectedItem().toString().equals("<Predeterminado>")
-						&& !auxNot.getContexto().equals(comboContexto.getSelectedItem().toString())) {
-					auxList.remove(i - correccion);
-					borrado = true;
-				}
+			// Obtener notificaciones filtradas
+			notificaciones = notificacionesFiltradas();
 
-				// FECHAS
-				DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-				if (!borrado && !txtDesde.getText().equals("")) {
-					Date desde = null;
-					try {
-						desde = format.parse(txtDesde.getText());
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					if (desde.after(auxNot.getFecha_envio())) {
-						auxList.remove(i - correccion);
-						borrado = true;
-					}
-				}
-
-				if (!borrado && !txtHasta.getText().equals("")) {
-					Date hasta = null;
-					try {
-						hasta = format.parse(txtHasta.getText());
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					Calendar c = Calendar.getInstance();
-					c.setTime(hasta);
-					c.add(Calendar.DATE, 1); // number of days to add
-					hasta = c.getTime();
-
-					if (hasta.before(auxNot.getFecha_envio())) {
-						auxList.remove(i - correccion);
-						borrado = true;
-					}
-				}
-
-				// IMPLEMENTAR ETIQUETADOS
-
-				if (!borrado && !comboEtiqueta.getSelectedItem().toString().equals("")
-						&& !auxNot.getEtiquetas().contains(comboEtiqueta.getSelectedItem())) {
-					auxList.remove(i - correccion);
-					borrado = true;
-				}
-
-				// set for next loop
-				if (borrado) {
-					correccion++;
-				}
-				;
-				borrado = false;
-				i++;
-			}
-
-			cargarTablaNotificaciones(auxList);
+			cargarTablaNotificaciones(notificaciones);
 		}
 
 	}
 
-	private void filtrarTabla(){
-		clearTablaNotificaciones();
-
-		ArrayList<Notificacion> auxList = new ArrayList<Notificacion>(notificaciones);
-		Notificacion auxNot = null;
-		int correccion = 0;
-		int i = 0;
-		Boolean borrado = false;
-		for (Notificacion n : notificaciones) {
-			auxNot = notificaciones.get(i);
-			String nombre = auxNot.getNinio();
-			Boolean resultado = auxNot.getNinio().equals(comboNinio.getSelectedItem().toString());
-
-			if (!borrado && !comboNinio.getSelectedItem().toString().equals("")
-					&& !auxNot.getNinio().equals(comboNinio.getSelectedItem().toString())) {
-				auxList.remove(i - correccion);
-				borrado = true;
-			}
-			if (!borrado && !comboContenido.getSelectedItem().toString().equals("")
-					&& !auxNot.getContenido().equals(comboContenido.getSelectedItem().toString())) {
-				auxList.remove(i - correccion);
-				borrado = true;
-			}
-			if (!borrado && !comboCategoria.getSelectedItem().toString().equals("")
-					&& !auxNot.getCategoria().equals(comboCategoria.getSelectedItem().toString())) {
-				auxList.remove(i - correccion);
-				borrado = true;
-			}
-			if (!borrado && !comboContexto.getSelectedItem().toString().equals("")
-					&& !comboContexto.getSelectedItem().toString().equals("<Predeterminado>")
-					&& !auxNot.getContexto().equals(comboContexto.getSelectedItem().toString())) {
-				auxList.remove(i - correccion);
-				borrado = true;
-			}
-
-			// FECHAS
-			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-			if (!borrado && !txtDesde.getText().equals("")) {
-				Date desde = null;
-				try {
-					desde = format.parse(txtDesde.getText());
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				if (desde.after(auxNot.getFecha_envio())) {
-					auxList.remove(i - correccion);
-					borrado = true;
-				}
-			}
-
-			if (!borrado && !txtHasta.getText().equals("")) {
-				Date hasta = null;
-				try {
-					hasta = format.parse(txtHasta.getText());
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				Calendar c = Calendar.getInstance();
-				c.setTime(hasta);
-				c.add(Calendar.DATE, 1); // number of days to add
-				hasta = c.getTime();
-
-				if (hasta.before(auxNot.getFecha_envio())) {
-					auxList.remove(i - correccion);
-					borrado = true;
-				}
-			}
-
-			// IMPLEMENTAR ETIQUETADOS
-
-			if (!borrado && !comboEtiqueta.getSelectedItem().toString().equals("")
-					&& !auxNot.getEtiquetas().contains(comboEtiqueta.getSelectedItem())) {
-				auxList.remove(i - correccion);
-				borrado = true;
-			}
-
-			// set for next loop
-			if (borrado) {
-				correccion++;
-			}
-			;
-			borrado = false;
-			i++;
-		}
-
-		cargarTablaNotificaciones(auxList);
-	}
 	private class CreadorEtiqueta implements ActionListener {
 
 		@Override
@@ -396,7 +238,7 @@ public class Monitor extends JFrame {
 				actualizarCombosEtiqueta();
 			}
 			actualizarNotificaciones();
-			filtrarTabla();
+
 		}
 
 	}
@@ -432,7 +274,7 @@ public class Monitor extends JFrame {
 				actualizarCombosEtiqueta();
 			}
 			actualizarNotificaciones();
-			filtrarTabla();
+
 		}
 
 	}
@@ -449,7 +291,7 @@ public class Monitor extends JFrame {
 				actualizarCombosEtiqueta();
 			}
 			actualizarNotificaciones();
-			filtrarTabla();
+
 		}
 
 	}
@@ -470,57 +312,27 @@ public class Monitor extends JFrame {
 				actualizarNotificaciones();
 			}
 			actualizarNotificaciones();
-			filtrarTabla();
 		}
 
+	}
+
+	private List<Notificacion> notificacionesFiltradas() {
+		conector.connect();
+		List<Notificacion> ret = conector.getNotificacionesFiltradas(filtroNinio, filtroContenido, filtroContexto, filtroCategoria,
+				filtroEtiqueta, filtroDesde, filtroHasta);
+		conector.close();
+		return ret;
 	}
 
 	private void actualizarNotificaciones() {
 		clearTablaNotificaciones();
-		conector.connect();
-		notificaciones = conector.getNotificaciones();
-		conector.close();
+		notificaciones = notificacionesFiltradas();
 		cargarTablaNotificaciones(notificaciones);
 	}
 
-	private class RefrescadorTabla implements MouseListener{
-
-		@Override
-		public void mouseClicked(MouseEvent arg0) {
-			actualizarNotificaciones();
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
-	
 	public Monitor() {
 		// cargar notificaciones de la BD
-		conector.connect();
-		notificaciones = conector.getNotificaciones();
-		conector.close();
+		notificaciones = notificacionesFiltradas();
 
 		this.addWindowListener(new InicializadorVentana());
 
@@ -571,31 +383,31 @@ public class Monitor extends JFrame {
 		btnFiltrar.setBounds(283, 165, 86, 23);
 		btnFiltrar.addActionListener(new FiltradorTabla());
 		panelFiltros.add(btnFiltrar);
-		
+
 		JLabel lblContenido = new JLabel("Contenido:");
 		lblContenido.setBounds(10, 24, 61, 14);
 		panelFiltros.add(lblContenido);
-		
+
 		JLabel lblContexto = new JLabel("Contexto:");
 		lblContexto.setBounds(10, 55, 61, 14);
 		panelFiltros.add(lblContexto);
-		
+
 		JLabel lblNi = new JLabel("Ni\u00F1@:");
 		lblNi.setBounds(10, 86, 46, 14);
 		panelFiltros.add(lblNi);
-		
+
 		JLabel lblEtiqueta = new JLabel("Etiqueta:");
 		lblEtiqueta.setBounds(207, 55, 46, 14);
 		panelFiltros.add(lblEtiqueta);
-		
+
 		JLabel lblNewLabel = new JLabel("Categoria:");
 		lblNewLabel.setBounds(202, 24, 51, 14);
 		panelFiltros.add(lblNewLabel);
-		
+
 		JLabel lblFechaDesde = new JLabel("Fecha Desde:");
 		lblFechaDesde.setBounds(10, 120, 86, 14);
 		panelFiltros.add(lblFechaDesde);
-		
+
 		JLabel lblFechaHasta = new JLabel("Fecha Hasta:");
 		lblFechaHasta.setBounds(129, 120, 82, 14);
 		panelFiltros.add(lblFechaHasta);
@@ -647,19 +459,19 @@ public class Monitor extends JFrame {
 		btnRenombrar.setBounds(278, 114, 109, 23);
 		btnRenombrar.addActionListener(new RenombradorEtiqueta());
 		panelEtiquetas.add(btnRenombrar);
-		
+
 		lblCrearEtiqueta = new JLabel("Crear:");
 		lblCrearEtiqueta.setBounds(10, 25, 46, 14);
 		panelEtiquetas.add(lblCrearEtiqueta);
-		
+
 		lblEliminar = new JLabel("Eliminar:");
 		lblEliminar.setBounds(10, 56, 46, 14);
 		panelEtiquetas.add(lblEliminar);
-		
+
 		lblAsignarDesasginar = new JLabel("Asignar / Desasginar:");
 		lblAsignarDesasginar.setBounds(4, 87, 110, 14);
 		panelEtiquetas.add(lblAsignarDesasginar);
-		
+
 		lblRenombrar = new JLabel("Renombrar:");
 		lblRenombrar.setBounds(10, 118, 69, 14);
 		panelEtiquetas.add(lblRenombrar);
