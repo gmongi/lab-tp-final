@@ -107,8 +107,6 @@ public class Monitor extends JFrame {
 		try {
 			notificaciones = mapper.readTree(new File("notificaciones.json"));
 
-			List<ArrayList<String>> lista = new ArrayList<ArrayList<String>>();
-
 			con.connect();
 			int count = 1;
 			for (JsonNode i : notificaciones) {

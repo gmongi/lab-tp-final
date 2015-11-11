@@ -171,9 +171,6 @@ public class Conector {
 				etiquetas.add(rs2.getString("texto"));
 			}
 
-			if (etiquetas.size() > 0) {
-				int i = 0;
-			}
 			n.setEtiquetas(etiquetas);
 
 		} catch (SQLException | ParseException e) {
