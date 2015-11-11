@@ -403,13 +403,13 @@ public class Monitor extends JFrame {
 		UtilDateModel model = new UtilDateModel();
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
 		dateDesde = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-		dateDesde.setBounds(10, 145, 145, 20);
+		dateDesde.setBounds(79, 114, 145, 20);
 		panelFiltros.add(dateDesde);
 
 		UtilDateModel model2 = new UtilDateModel();
 		JDatePanelImpl datePanel2 = new JDatePanelImpl(model2, p);
 		dateHasta = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
-		dateHasta.setBounds(283, 133, 86, 20);
+		dateHasta.setBounds(78, 139, 146, 20);
 		panelFiltros.add(dateHasta);
 
 		comboEtiqueta = new JComboBox<String>();
@@ -446,7 +446,7 @@ public class Monitor extends JFrame {
 		panelFiltros.add(lblFechaDesde);
 
 		JLabel lblFechaHasta = new JLabel("Fecha Hasta:");
-		lblFechaHasta.setBounds(287, 108, 82, 14);
+		lblFechaHasta.setBounds(10, 145, 82, 14);
 		panelFiltros.add(lblFechaHasta);
 
 		JPanel panelEtiquetas = new JPanel();
