@@ -309,7 +309,10 @@ public class Conector {
 	public void renombrarEtiqueta(String original, String nuevo) {
 		try {
 			Statement st = connect.createStatement();
-			st.executeUpdate("UPDATE etiquetas SET texto = '" + nuevo + "' WHERE texto = '" + original + "'");
+			ResultSet rs = st.executeQuery("SELECT * FROM etiquetas WHERE texto = '" + nuevo + "'");
+			if (!rs.next()){
+				st.executeUpdate("UPDATE etiquetas SET texto = '" + nuevo + "' WHERE texto = '" + original + "'");
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
