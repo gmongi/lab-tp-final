@@ -401,13 +401,13 @@ public class Monitor extends JFrame {
 		UtilDateModel model = new UtilDateModel();
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
 		dateDesde = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-		dateDesde.setBounds(79, 114, 145, 20);
+		dateDesde.setBounds(79, 114, 145, 25);
 		panelFiltros.add(dateDesde);
 
 		UtilDateModel model2 = new UtilDateModel();
 		JDatePanelImpl datePanel2 = new JDatePanelImpl(model2, p);
 		dateHasta = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
-		dateHasta.setBounds(78, 139, 146, 20);
+		dateHasta.setBounds(78, 145, 146, 25);
 		panelFiltros.add(dateHasta);
 
 		comboEtiqueta = new JComboBox<String>();
@@ -444,40 +444,40 @@ public class Monitor extends JFrame {
 		panelFiltros.add(lblFechaDesde);
 
 		JLabel lblFechaHasta = new JLabel("Fecha Hasta:");
-		lblFechaHasta.setBounds(10, 145, 82, 14);
+		lblFechaHasta.setBounds(10, 151, 82, 14);
 		panelFiltros.add(lblFechaHasta);
 
 		JPanel panelEtiquetas = new JPanel();
 		panelEtiquetas.setBorder(new TitledBorder(null, "Etiquetas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelEtiquetas.setBounds(404, 12, 397, 199);
+		panelEtiquetas.setBounds(404, 12, 397, 149);
 		contentPane.add(panelEtiquetas);
 		panelEtiquetas.setLayout(null);
 
 		txtCrear = new JTextField();
-		txtCrear.setBounds(124, 22, 99, 20);
+		txtCrear.setBounds(73, 20, 99, 20);
 		panelEtiquetas.add(txtCrear);
 		txtCrear.setColumns(10);
 
 		JButton btnCrear = new JButton("Crear");
-		btnCrear.setBounds(233, 21, 86, 23);
+		btnCrear.setBounds(182, 19, 86, 23);
 		btnCrear.addActionListener(new CreadorEtiqueta());
 		panelEtiquetas.add(btnCrear);
 
 		comboEliminar = new JComboBox<String>();
-		comboEliminar.setBounds(124, 53, 99, 20);
+		comboEliminar.setBounds(73, 51, 99, 20);
 		panelEtiquetas.add(comboEliminar);
 
 		JButton btnEliminar = new JButton("Eliminar");
-		btnEliminar.setBounds(233, 52, 86, 23);
+		btnEliminar.setBounds(182, 50, 86, 23);
 		btnEliminar.addActionListener(new EliminadorEtiqueta());
 		panelEtiquetas.add(btnEliminar);
 
 		comboAsignar = new JComboBox<String>();
-		comboAsignar.setBounds(124, 84, 99, 20);
+		comboAsignar.setBounds(73, 82, 99, 20);
 		panelEtiquetas.add(comboAsignar);
 
 		JButton btnAsignar = new JButton("Asignar / Desasig.");
-		btnAsignar.setBounds(233, 86, 154, 23);
+		btnAsignar.setBounds(182, 84, 119, 23);
 		btnAsignar.addActionListener(new AsignadorEtiqueta());
 		panelEtiquetas.add(btnAsignar);
 
@@ -503,8 +503,8 @@ public class Monitor extends JFrame {
 		lblEliminar.setBounds(10, 56, 46, 14);
 		panelEtiquetas.add(lblEliminar);
 
-		lblAsignarDesasginar = new JLabel("Asignar / Desasginar:");
-		lblAsignarDesasginar.setBounds(4, 87, 110, 14);
+		lblAsignarDesasginar = new JLabel("Des/Asignar:");
+		lblAsignarDesasginar.setBounds(10, 87, 110, 14);
 		panelEtiquetas.add(lblAsignarDesasginar);
 
 		lblRenombrar = new JLabel("Renombrar:");
@@ -528,6 +528,10 @@ public class Monitor extends JFrame {
 				return columnTypes[columnIndex];
 			}
 		});
+		
+		JLabel labelMensajes = new JLabel("New label");
+		labelMensajes.setBounds(402, 172, 46, 14);
+		contentPane.add(labelMensajes);
 		table.getColumnModel().getColumn(0).setResizable(true);
 		table.getColumnModel().getColumn(0).setPreferredWidth(115);
 		table.getColumnModel().getColumn(1).setResizable(true);

@@ -182,7 +182,7 @@ public class Conector {
 
 	private List<Notificacion> getNotificaciones() {
 		List<Notificacion> ret = new ArrayList<Notificacion>();
-		String sql = sqlNotificaciones;
+		String sql = sqlNotificaciones + " ORDER BY fecha_envio DESC";
 		Statement st;
 		ResultSet rs;
 		try {
@@ -244,6 +244,7 @@ public class Conector {
 			sql.append(" AND  fecha_envio <= '" + hasta + "'");
 		}
 
+		sql.append(" ORDER BY fecha_envio DESC");
 		Statement st;
 		ResultSet rs;
 		try {
