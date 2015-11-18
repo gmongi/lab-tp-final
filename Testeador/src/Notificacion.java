@@ -1,14 +1,11 @@
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 @Mock
 public class Notificacion {
 
-	private int id;
 	@MockTodayAttribute
-	public Date fecha_envio;
-	private Date fecha_recepcion;
+	public Date fecha;
 	@MockStringAttribute({"Alegre", "Entusiasmado", "Molesto"})
 	public String contenido;
 	@MockStringAttribute({"Establo-Terapia", "Pista", "Hogar"})
@@ -17,22 +14,14 @@ public class Notificacion {
 	public String categoria;
 	@MockStringAttribute({"Juan", "Pedro", "Juana", "Manuela"})
 	public String ninio;
-	private ArrayList<String> etiquetas;
 
-	public Date getFecha_envio() {
-		return fecha_envio;
+	public String getFecha() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return sdf.format(fecha);
 	}
 
-	public void setFecha_envio(Date fecha_envio) {
-		this.fecha_envio = fecha_envio;
-	}
-
-	public Date getFecha_recepcion() {
-		return fecha_recepcion;
-	}
-
-	public void setFecha_recepcion(Date fecha_recepcion) {
-		this.fecha_recepcion = fecha_recepcion;
+	public void setFecha(Date fecha_envio) {
+		this.fecha = fecha_envio;
 	}
 
 	public String getContenido() {
@@ -67,19 +56,4 @@ public class Notificacion {
 		this.ninio = ninio;
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public ArrayList<String> getEtiquetas() {
-		return etiquetas;
-	}
-
-	public void setEtiquetas(ArrayList<String> etiquetas) {
-		this.etiquetas = etiquetas;
-	}
 }

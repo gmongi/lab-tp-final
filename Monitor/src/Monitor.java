@@ -1,8 +1,6 @@
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
@@ -13,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -25,30 +22,26 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField.AbstractFormatter;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-import org.sqlite.date.DateFormatUtils;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.std.DateSerializer;
-
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.JLabel;
 
-import org.jdatepicker.impl.DateComponentFormatter;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 @SuppressWarnings("serial")
-public class Monitor extends JFrame {
+public class Monitor extends JFrame implements Runnable {
 
 	private JPanel contentPane;
 
@@ -91,13 +84,31 @@ public class Monitor extends JFrame {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				try {
+					UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedLookAndFeelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
 				// JSONLoader();
 				Monitor frame = new Monitor();
-				frame.setVisible(true);
+				frame.run();
 			}
 		});
 	}
 
+	@SuppressWarnings("unused")
 	private static void JSONLoader() {
 		Conector con = new Conector();
 
@@ -204,8 +215,8 @@ public class Monitor extends JFrame {
 			for (String s : n.getEtiquetas()) {
 				etiquetas.append(s + ", ");
 			}
-			Object[] row = { format.format(n.getFecha_envio()), n.getContenido(), n.getContexto(), n.getCategoria(), n.getNinio(),
-					etiquetas.toString(), n.getId() };
+			Object[] row = { format.format(n.getFecha_envio()), n.getContenido(), n.getContexto(), n.getCategoria(),
+					n.getNinio(), etiquetas.toString(), n.getId() };
 			((DefaultTableModel) table.getModel()).addRow(row);
 		}
 	}
@@ -325,8 +336,8 @@ public class Monitor extends JFrame {
 
 	private List<Notificacion> notificacionesFiltradas() {
 		conector.connect();
-		List<Notificacion> ret = conector.getNotificacionesFiltradas(filtroNinio, filtroContenido, filtroContexto, filtroCategoria,
-				filtroEtiqueta, filtroDesde, filtroHasta);
+		List<Notificacion> ret = conector.getNotificacionesFiltradas(filtroNinio, filtroContenido, filtroContexto,
+				filtroCategoria, filtroEtiqueta, filtroDesde, filtroHasta);
 		conector.close();
 		return ret;
 	}
@@ -448,7 +459,8 @@ public class Monitor extends JFrame {
 		panelFiltros.add(lblFechaHasta);
 
 		JPanel panelEtiquetas = new JPanel();
-		panelEtiquetas.setBorder(new TitledBorder(null, "Etiquetas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelEtiquetas
+				.setBorder(new TitledBorder(null, "Etiquetas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panelEtiquetas.setBounds(404, 12, 397, 149);
 		contentPane.add(panelEtiquetas);
 		panelEtiquetas.setLayout(null);
@@ -519,16 +531,18 @@ public class Monitor extends JFrame {
 		table = new JTable();
 		table.setAutoCreateRowSorter(true);
 		panelNotificaciones.setViewportView(table);
-		table.setModel(new DefaultTableModel(new Object[][] {},
-				new String[] { "Fecha/Hora env\u00EDo", "Contenido", "Contexto", "Categor\u00EDa", "Ni\u00F1@", "Etiquetas", "Id" }) {
-			Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class, String.class, String.class,
-					Integer.class };
+		table.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Fecha/Hora env\u00EDo", "Contenido",
+				"Contexto", "Categor\u00EDa", "Ni\u00F1@", "Etiquetas", "Id" }) {
+			@SuppressWarnings("rawtypes")
+			Class[] columnTypes = new Class[] { String.class, String.class, String.class, String.class, String.class,
+					String.class, Integer.class };
 
+			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public Class getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
 			}
 		});
-		
+
 		JLabel labelMensajes = new JLabel("New label");
 		labelMensajes.setBounds(402, 172, 46, 14);
 		contentPane.add(labelMensajes);
@@ -542,5 +556,10 @@ public class Monitor extends JFrame {
 		table.getColumnModel().getColumn(6).setMinWidth(0);
 		table.getColumnModel().getColumn(6).setMaxWidth(0);
 		table.getColumnModel().getColumn(6).setWidth(0);
+	}
+
+	@Override
+	public void run() {
+		this.setVisible(true);
 	}
 }

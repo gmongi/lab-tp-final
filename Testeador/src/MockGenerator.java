@@ -4,10 +4,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class MockGenerator {
 
-	public static void main(String[] args) {
-		MockGenerator.createMockInstances(Notificacion.class, 3);
+	public static void main(String[] args) throws JsonProcessingException {
+		List<Notificacion> lista = MockGenerator.createMockInstances(Notificacion.class, 3);
+		ObjectMapper mapper = new ObjectMapper();
+		System.out.println(mapper.writeValueAsString(lista));
 	}
 
 	public static <T> List<T> createMockInstances(Class<T> clase, int cant) {
@@ -23,7 +28,7 @@ public class MockGenerator {
 							MockStringAttribute a = f.getAnnotation(MockStringAttribute.class);
 							f.set(n, a.value()[new Random().nextInt(a.value().length)]);
 						}
-						if (f.isAnnotationPresent(MockTodayAttribute.class)) {
+						if (f.isAnnotationPresent(MockTodayAttribute.class)) {							
 							f.set(n, new Date());
 						}
 
