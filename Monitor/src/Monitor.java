@@ -3,19 +3,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -23,13 +16,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.JTextField;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
@@ -104,36 +95,10 @@ public class Monitor extends JFrame implements Runnable {
 				// JSONLoader();
 				Monitor frame = new Monitor();
 				frame.run();
+				
+				new Servidor().run();
 			}
 		});
-	}
-
-	@SuppressWarnings("unused")
-	private static void JSONLoader() {
-		Conector con = new Conector();
-
-		ObjectMapper mapper = new ObjectMapper();
-
-		JsonNode notificaciones;
-		try {
-			notificaciones = mapper.readTree(new File("notificaciones.json"));
-
-			con.connect();
-			int count = 1;
-			for (JsonNode i : notificaciones) {
-				con.nuevaNotificacion(i.get("fecha").asText(), i.get("contenido").asText(), i.get("contexto").asText(),
-						i.get("categoria").asText(), i.get("ninio").asText());
-				System.out.println(count);
-				count++;
-			}
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		con.close();
 	}
 
 	private class InicializadorVentana implements WindowListener {
@@ -178,28 +143,14 @@ public class Monitor extends JFrame implements Runnable {
 		public void windowOpened(WindowEvent e) {
 			cargarTablaNotificaciones(notificaciones);
 
-			cargarComboColumna(1, comboContenido);
-			cargarComboColumna(2, comboContexto);
-			cargarComboColumna(3, comboCategoria);
-			cargarComboColumna(4, comboNinio);
-
+			conector.connect();
+			cargarCombo(comboContenido, conector.getContenidos());
+			cargarCombo(comboCategoria, conector.getCategorias());
+			cargarCombo(comboContexto, conector.getContextos());
+			cargarCombo(comboNinio, conector.getNinios());
+			conector.close();
+			
 			actualizarCombosEtiqueta();
-		}
-
-		private void cargarComboColumna(int columna, JComboBox<String> combo) {
-			Set<String> set = new HashSet<String>();
-			for (int i = 1; i < table.getModel().getRowCount(); i++) {
-				set.add((String) table.getModel().getValueAt(i, columna));
-			}
-
-			ArrayList<String> arr = new ArrayList<String>();
-			arr.addAll(set);
-			Collections.sort(arr);
-
-			combo.addItem("");
-			for (String s : arr) {
-				combo.addItem(s);
-			}
 		}
 
 	}

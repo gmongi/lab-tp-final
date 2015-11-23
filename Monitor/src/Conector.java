@@ -49,6 +49,10 @@ public class Conector {
 	}
 
 	public void nuevaNotificacion(String fecha, String contenido, String contexto, String categoria, String ninio) {
+		// Si no existe el niño, Crearlo
+		if (getIdNinio(ninio) == 0){
+			nuevoNinio(ninio);
+		}
 		PreparedStatement st = null;
 		try {
 			st = connect.prepareStatement(nuevaNotificacion);
@@ -195,7 +199,7 @@ public class Conector {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.print("Recuperadas " + ret.size() + " notificaciones");
+		System.out.println("Recuperadas " + ret.size() + " notificaciones");
 		return ret;
 	}
 
@@ -276,6 +280,20 @@ public class Conector {
 
 	}
 
+	public void nuevoNinio(String text) {
+		try {
+			Statement st = connect.createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM ninios WHERE nombre = '" + text + "'");
+			if (!rs.next()) {
+				st.executeUpdate("INSERT INTO ninios (nombre) VALUES ('" + text + "')");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
 	public List<String> getEtiquetas() {
 		ArrayList<String> ret = new ArrayList<String>();
 		try {
@@ -291,6 +309,66 @@ public class Conector {
 		return ret;
 	}
 
+	public List<String> getContenidos() {
+		ArrayList<String> ret = new ArrayList<String>();
+		try {
+			Statement st = connect.createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM contenidos ORDER BY texto ASC");
+			while (rs.next()) {
+				ret.add(rs.getString("texto"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	public List<String> getContextos() {
+		ArrayList<String> ret = new ArrayList<String>();
+		try {
+			Statement st = connect.createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM contextos ORDER BY texto ASC");
+			while (rs.next()) {
+				ret.add(rs.getString("texto"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	public List<String> getCategorias() {
+		ArrayList<String> ret = new ArrayList<String>();
+		try {
+			Statement st = connect.createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM categorias ORDER BY texto ASC");
+			while (rs.next()) {
+				ret.add(rs.getString("texto"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	public List<String> getNinios() {
+		ArrayList<String> ret = new ArrayList<String>();
+		try {
+			Statement st = connect.createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM ninios ORDER BY nombre ASC");
+			while (rs.next()) {
+				ret.add(rs.getString("nombre"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
 	public void eliminarEtiqueta(String string) {
 		try {
 			Statement st = connect.createStatement();
