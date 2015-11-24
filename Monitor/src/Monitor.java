@@ -16,7 +16,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.JTextField;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -33,7 +32,7 @@ import org.jdatepicker.impl.UtilDateModel;
 
 @SuppressWarnings("serial")
 public class Monitor extends JFrame implements Runnable {
-
+	
 	private JPanel contentPane;
 
 	private JDatePickerImpl dateDesde;
@@ -69,6 +68,8 @@ public class Monitor extends JFrame implements Runnable {
 
 	JButton btnFiltrar;
 
+	JLabel lblMensajes;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -91,12 +92,12 @@ public class Monitor extends JFrame implements Runnable {
 					e.printStackTrace();
 				}
 				
+				Monitor monitor = new Monitor();
+				monitor.run();
 				
-				// JSONLoader();
-				Monitor frame = new Monitor();
-				frame.run();
-				
-				new Servidor().run();
+				Servidor servidor = new Servidor(monitor);
+				servidor.run();
+
 			}
 		});
 	}
@@ -322,6 +323,7 @@ public class Monitor extends JFrame implements Runnable {
 	}
 
 	public Monitor() {
+		
 		// cargar notificaciones de la BD
 		notificaciones = notificacionesFiltradas();
 
@@ -494,9 +496,10 @@ public class Monitor extends JFrame implements Runnable {
 			}
 		});
 
-		JLabel labelMensajes = new JLabel("New label");
-		labelMensajes.setBounds(402, 172, 46, 14);
-		contentPane.add(labelMensajes);
+		lblMensajes = new JLabel();
+		lblMensajes.setBounds(402, 172, 271, 14);
+		contentPane.add(lblMensajes);
+		
 		table.getColumnModel().getColumn(0).setResizable(true);
 		table.getColumnModel().getColumn(0).setPreferredWidth(115);
 		table.getColumnModel().getColumn(1).setResizable(true);
@@ -512,5 +515,10 @@ public class Monitor extends JFrame implements Runnable {
 	@Override
 	public void run() {
 		this.setVisible(true);
+	}
+	
+	public void nuevasNotificaciones(){
+		lblMensajes.setText("NUEVAS Notificaciones");
+		actualizarNotificaciones();
 	}
 }

@@ -10,10 +10,16 @@ import com.sun.net.httpserver.HttpHandler;
 
 public class NuevasNotificacionesHandler implements HttpHandler {
 
+	private Servidor servidor;
+	
+	public NuevasNotificacionesHandler(Servidor s) {
+		this.servidor = s;
+	}
+	
 	@Override
 	public void handle(HttpExchange req) throws IOException {
-		System.out.println("Handleo");
 		JSONLoader(IOUtils.toString(req.getRequestBody()));
+		servidor.nuevasNotificaciones();
 	}
 
 	private void JSONLoader(String notifs) {
@@ -23,7 +29,6 @@ public class NuevasNotificacionesHandler implements HttpHandler {
 
 		JsonNode notificaciones;
 		try {
-			System.out.println(notifs);
 			notificaciones = mapper.readTree(notifs);
 
 			con.connect();
@@ -40,7 +45,8 @@ public class NuevasNotificacionesHandler implements HttpHandler {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			con.close();
 		}
-		con.close();
 	}
 }
