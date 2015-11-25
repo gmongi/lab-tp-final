@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -36,7 +39,7 @@ public class Monitor extends JFrame implements Runnable {
 	private JPanel contentPane;
 
 	private JDatePickerImpl dateDesde;
-	JDatePickerImpl dateHasta;
+	private JDatePickerImpl dateHasta;
 
 	private JTextField txtCrear;
 	private JTextField txtRenombrar;
@@ -286,6 +289,33 @@ public class Monitor extends JFrame implements Runnable {
 
 	}
 
+	private class MostradorTodo implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// resetear variables filtro
+			filtroNinio = "";
+			filtroCategoria = "";
+			filtroContexto = "";
+			filtroContenido = "";
+			filtroEtiqueta = "";
+			filtroDesde = "";
+			filtroHasta = "";
+			
+			// resetear vista filtros
+			comboNinio.setSelectedItem("");
+			comboCategoria.setSelectedItem("");
+			comboContexto.setSelectedItem("");
+			comboContenido.setSelectedItem("");
+			comboEtiqueta.setSelectedItem("");
+			dateDesde.getJDateInstantPanel().getModel().setValue(null);
+			dateHasta.getJDateInstantPanel().getModel().setValue(null);
+			
+			actualizarNotificaciones();
+		}
+		
+	}
+	
 	private List<Notificacion> notificacionesFiltradas() {
 		conector.connect();
 		List<Notificacion> ret = conector.getNotificacionesFiltradas(filtroNinio, filtroContenido, filtroContexto,
@@ -500,6 +530,11 @@ public class Monitor extends JFrame implements Runnable {
 		lblMensajes.setBounds(402, 172, 271, 14);
 		contentPane.add(lblMensajes);
 		
+		JButton btnNewButton = new JButton("Mostrar todo");
+		btnNewButton.setBounds(681, 188, 106, 23);
+		btnNewButton.addActionListener(new MostradorTodo());
+		contentPane.add(btnNewButton);
+		
 		table.getColumnModel().getColumn(0).setResizable(true);
 		table.getColumnModel().getColumn(0).setPreferredWidth(115);
 		table.getColumnModel().getColumn(1).setResizable(true);
@@ -520,5 +555,23 @@ public class Monitor extends JFrame implements Runnable {
 	public void nuevasNotificaciones(){
 		lblMensajes.setText("NUEVAS Notificaciones");
 		actualizarNotificaciones();
+		
+		Timer timer = new Timer();
+
+	    TimerTask task = new TimerTask() {
+	    	int secondsToWait = 5;
+	        @Override
+	        public void run() {
+	            secondsToWait--;
+	            lblMensajes.setText("");
+	            if (secondsToWait == 0) {
+	                timer.cancel();
+	                timer.purge();
+	            }
+	        }
+	    };
+	    
+	    timer.schedule(task, 20000);
+	    
 	}
 }
