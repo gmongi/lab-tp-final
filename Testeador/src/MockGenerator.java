@@ -1,4 +1,7 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
@@ -6,6 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,11 +18,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class MockGenerator {
 
 	public static void main(String[] args) throws JsonProcessingException {
-		List<Notificacion> lista = MockGenerator.createMockInstances(Notificacion.class, 5);
+		List<Notificacion> lista = MockGenerator.createMockInstances(Notificacion.class, 40);
 		ObjectMapper mapper = new ObjectMapper();
 		System.out.println(mapper.writeValueAsString(lista));
 
-		String url = "http://127.0.0.1:55555/monitor";
+		// config
+		Properties p = new Properties();
+		String archivo = "conf.properties";
+		InputStream input = null;
+		try {
+			input = new FileInputStream(archivo);
+		} catch (FileNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		try {
+			p.load(input);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String url = "http://127.0.0.1:"+p.getProperty("port")+"/monitor";
 		URL obj;
 		HttpURLConnection conn;
 		try {
