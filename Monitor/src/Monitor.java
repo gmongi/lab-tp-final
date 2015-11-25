@@ -35,7 +35,7 @@ import org.jdatepicker.impl.UtilDateModel;
 
 @SuppressWarnings("serial")
 public class Monitor extends JFrame implements Runnable {
-	
+
 	private JPanel contentPane;
 
 	private JDatePickerImpl dateDesde;
@@ -72,7 +72,7 @@ public class Monitor extends JFrame implements Runnable {
 	JButton btnFiltrar;
 
 	JLabel lblMensajes;
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -94,10 +94,10 @@ public class Monitor extends JFrame implements Runnable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 				Monitor monitor = new Monitor();
 				monitor.run();
-				
+
 				Servidor servidor = new Servidor(monitor);
 				servidor.run();
 
@@ -146,17 +146,36 @@ public class Monitor extends JFrame implements Runnable {
 		@Override
 		public void windowOpened(WindowEvent e) {
 			cargarTablaNotificaciones(notificaciones);
-
-			conector.connect();
-			cargarCombo(comboContenido, conector.getContenidos());
-			cargarCombo(comboCategoria, conector.getCategorias());
-			cargarCombo(comboContexto, conector.getContextos());
-			cargarCombo(comboNinio, conector.getNinios());
-			conector.close();
-			
-			actualizarCombosEtiqueta();
+			actualizarCombos();
 		}
 
+	}
+
+	private void actualizarCombos() {
+		// guardar valores seleccionados
+		Object cn = comboNinio.getSelectedItem();
+		Object cc = comboCategoria.getSelectedItem();
+		Object ccx = comboContexto.getSelectedItem();
+		Object ccd = comboContenido.getSelectedItem();
+		Object ce = comboEtiqueta.getSelectedItem();
+
+		conector.connect();
+		cargarCombo(comboContenido, conector.getContenidos());
+		cargarCombo(comboCategoria, conector.getCategorias());
+		cargarCombo(comboContexto, conector.getContextos());
+		cargarCombo(comboNinio, conector.getNinios());
+		conector.close();
+
+		actualizarCombosEtiqueta();
+
+		// reponer valores
+		if (cn != null) {
+			comboNinio.setSelectedItem(cn);
+			comboCategoria.setSelectedItem(cc);
+			comboContexto.setSelectedItem(ccx);
+			comboContenido.setSelectedItem(ccd);
+			comboEtiqueta.setSelectedItem(ce);
+		}
 	}
 
 	private void clearTablaNotificaciones() {
@@ -301,7 +320,8 @@ public class Monitor extends JFrame implements Runnable {
 			filtroEtiqueta = "";
 			filtroDesde = "";
 			filtroHasta = "";
-			
+
+			/*
 			// resetear vista filtros
 			comboNinio.setSelectedItem("");
 			comboCategoria.setSelectedItem("");
@@ -310,12 +330,13 @@ public class Monitor extends JFrame implements Runnable {
 			comboEtiqueta.setSelectedItem("");
 			dateDesde.getJDateInstantPanel().getModel().setValue(null);
 			dateHasta.getJDateInstantPanel().getModel().setValue(null);
-			
+			*/
+
 			actualizarNotificaciones();
 		}
-		
+
 	}
-	
+
 	private List<Notificacion> notificacionesFiltradas() {
 		conector.connect();
 		List<Notificacion> ret = conector.getNotificacionesFiltradas(filtroNinio, filtroContenido, filtroContexto,
@@ -353,7 +374,7 @@ public class Monitor extends JFrame implements Runnable {
 	}
 
 	public Monitor() {
-		
+
 		// cargar notificaciones de la BD
 		notificaciones = notificacionesFiltradas();
 
@@ -529,12 +550,12 @@ public class Monitor extends JFrame implements Runnable {
 		lblMensajes = new JLabel();
 		lblMensajes.setBounds(402, 172, 271, 14);
 		contentPane.add(lblMensajes);
-		
+
 		JButton btnNewButton = new JButton("Mostrar todo");
 		btnNewButton.setBounds(681, 188, 106, 23);
 		btnNewButton.addActionListener(new MostradorTodo());
 		contentPane.add(btnNewButton);
-		
+
 		table.getColumnModel().getColumn(0).setResizable(true);
 		table.getColumnModel().getColumn(0).setPreferredWidth(115);
 		table.getColumnModel().getColumn(1).setResizable(true);
@@ -551,27 +572,23 @@ public class Monitor extends JFrame implements Runnable {
 	public void run() {
 		this.setVisible(true);
 	}
-	
-	public void nuevasNotificaciones(){
-		lblMensajes.setText("NUEVAS Notificaciones");
-		actualizarNotificaciones();
-		
-		Timer timer = new Timer();
 
-	    TimerTask task = new TimerTask() {
-	    	int secondsToWait = 5;
-	        @Override
-	        public void run() {
-	            secondsToWait--;
-	            lblMensajes.setText("");
-	            if (secondsToWait == 0) {
-	                timer.cancel();
-	                timer.purge();
-	            }
-	        }
-	    };
-	    
-	    timer.schedule(task, 20000);
-	    
+	public void nuevasNotificaciones() {
+		lblMensajes.setText("NUEVAS Notificaciones");
+
+		actualizarNotificaciones();
+		actualizarCombos();
+
+		// Temporizador para desvanecer el mensaje
+		Timer timer = new Timer();
+		TimerTask task = new TimerTask() {
+			@Override
+			public void run() {
+				lblMensajes.setText("");
+			}
+		};
+
+		timer.schedule(task, 20000);
+
 	}
 }
